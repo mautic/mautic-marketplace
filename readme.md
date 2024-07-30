@@ -6,7 +6,7 @@ Mautic Marketplace: Enhancing the marketplace!
 
 ## Project description
 
-This project will expand enable the marketer to interact more smoothly with those plugins and themes available in the Marketplace and also reate and reviews plugins they use!
+This project will expand enable the marketer to interact more smoothly with those plugins and themes available in the Marketplace and also rate and reviews plugins they use!
 
 Hello, here is the step by step guide to set you up with the project!
 The project is using packagist and supabase basically it migate the packages data from packagist to supabase because the packagist has some limitations!
@@ -16,7 +16,7 @@ The project is using packagist and supabase basically it migate the packages dat
 
 so follow the steps to setup it in your local!
 
-1. So first you have to go the supabase website than click on start your project, and signup for a new account.
+1. So first you have to go to the [supabase](https://supabase.com/) website than click on start your project, and signup for a new account.
 
 2. click on new project after signup!
 
@@ -59,7 +59,7 @@ wait while it setting up the project!
 Clone the project
     
 ```bash
-  git clone https://link-to-project
+  git clone https://github.com/mautic/mautic-marketplace.git
 ```
 
 Go to the project directory
@@ -75,9 +75,13 @@ for mac os
   brew install deno
 ```
 enable this vs code extensions!
-Denoland and JavaScript and TypeScript Nightly by microsoft
 
-REPLACE YOUR URL AND ANON KEY.(you will find on your supabase project settings/API)
+Denoland and JavaScript and TypeScript Nightly by microsoft
+![deno extension](https://github.com/user-attachments/assets/3fed8c9b-813d-42db-b488-0f38b905af5c)
+![image](https://github.com/user-attachments/assets/721c1afc-fda0-49e9-b249-90e199bcfcc3)
+
+
+REPLACE YOUR URL AND ANON KEY IN INDEX.TS.(you will find on your supabase project settings/API)
 
 run the project
 
