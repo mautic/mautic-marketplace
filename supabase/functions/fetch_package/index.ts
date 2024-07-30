@@ -42,7 +42,7 @@ async function storeInSupabase(packageData: any) {
          }
        }
      }
-     let storedVersions: string[] = []; // Array of arrays to store versions
+     let storedversions: string[] = []; // Array of arrays to store versions
     const constraints = smv.split('|');
     for (const constraint of constraints) {
       if (constraint.startsWith('^')) {
@@ -51,9 +51,9 @@ async function storeInSupabase(packageData: any) {
         for (let patch = 0; patch <= 20; patch++) {
           patchVersions.push(`${major}.${minor}.${patch}`);
         }
-        storedVersions.push(...patchVersions);
+        storedversions.push(...patchVersions);
       } else {
-        storedVersions.push(constraint); // Single element array for non-caret constraints
+        storedversions.push(constraint); // Single element array for non-caret constraints
       }
     }
 
@@ -75,7 +75,7 @@ async function storeInSupabase(packageData: any) {
         time,
         require,
         smv,
-        storedVersions
+        storedversions
       }], { onConflict: 'name, version'});
 
     if (error) {
