@@ -59,20 +59,24 @@ wait while it setting up the project!
 Clone the project
     
 ```bash
-  git clone https://github.com/mautic/mautic-marketplace.git
+git clone https://github.com/mautic/mautic-marketplace.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd my-project
+cd my-project
 ```
 
 Install dependencies
 
 for mac os
 ```bash
-  brew install deno
+brew install deno
+```
+with shell
+```bash
+curl -fsSL https://deno.land/install.sh | sh
 ```
 enable this vs code extensions!
 
@@ -81,14 +85,15 @@ Denoland and JavaScript and TypeScript Nightly by microsoft
 ![image](https://github.com/user-attachments/assets/721c1afc-fda0-49e9-b249-90e199bcfcc3)
 
 
+
 REPLACE YOUR URL AND ANON KEY IN INDEX.TS.(you will find on your supabase project settings/API)
 
 run the project
 
 ```bash
-  deno run --allow-net index.ts
+deno run --allow-net index.ts
 ```
 for testing run 
 ```bash
-  deno test index_test.ts
+deno test index_test.ts
 ```
