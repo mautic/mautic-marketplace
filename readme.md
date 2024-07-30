@@ -45,7 +45,7 @@ wait while it setting up the project!
     time TIMESTAMPTZ,
     require JSONB,
     smv TEXT,
-    storedVersions TEXT[],
+    storedversions TEXT[],
     UNIQUE(name, version)
 );
 
