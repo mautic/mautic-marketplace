@@ -59,7 +59,7 @@ git clone https://github.com/mautic/mautic-marketplace.git
 Go to the project directory
 
 ```bash
-cd mautic-marketplace
+cd supabase\functions\fetch_package
 ```
 
 Install dependencies
