@@ -59,7 +59,7 @@ git clone https://github.com/mautic/mautic-marketplace.git
 Go to the project directory
 
 ```bash
-cd supabase\functions\fetch_package
+cd mautic-marketplace
 ```
 
 Install dependencies
@@ -83,9 +83,9 @@ REPLACE YOUR URL AND ANON KEY IN INDEX.TS. Find them in your Supabase project at
 run the project
 
 ```bash
-deno run --allow-net index.ts
+deno run --allow-env --allow-read --allow-net supabase/functions/fetch_package/index.ts
 ```
 for testing run 
 ```bash
-deno test index_test.ts
+deno test --allow-env --allow-read supabase/functions/tests/index_test.ts
 ```
