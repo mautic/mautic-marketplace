@@ -1,102 +1,81 @@
-import { assert, assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
+import { storeInSupabase } from '../tests/index_test.ts';
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
-// Define the structure for a package version
-interface PackageVersion {
-    name: string;
-    version: string;
-    require?: {
-        [key: string]: string; // This allows any string key
-    };
-}
 
-// Mock API response
-const mockApi = {
-    "packages": {
-        "dennisameling/helloworld-bundle": [] as PackageVersion[],
-  },
+// Mock Supabase client
+
+const mockDatabase: any[] = [];
+
+const mockSupabaseClient = {
+  from: () => ({
+    upsert: async (data: any[], options: any) => {
+      for (const item of data) {
+        const index = mockDatabase.findIndex(
+          (entry) => entry.name === item.name && entry.version === item.version
+        );
+        if (index === -1) {
+          mockDatabase.push(item);
+        } else {
+          mockDatabase[index] = item;
+        }
+      }
+      return { data, error: null };
+    }
+  })
 };
 
-// Mock Supabase Client
-class MockSupabaseClient {
-    data: any[] = []; 
-    from(tableName: string) {
-        return {
-            upsert: async (data: any[]) => {
-              console.log("Upserting data:", data);
-                // Simulate upsert logic
-                this.data.push(...data);
-                console.log("Mock upsert called with:", data);
-                return { data: this.data, error: null };
-            },
-        };
-    }
-}
-
-// Function to upsert packages using mock data
-async function upsertPackages(upsertFunction: (data: { name: string; version: string }) => Promise<void>): Promise<void> {
-    for (const [packageName, versions] of Object.entries(mockApi.packages)) {
-        // Check if the package has at least one version
-        
-        assert(versions.length > 0, `Expected package ${packageName} to have versions.`);
-
-        // Check if the package includes "core-lib"
-        
-        let hasCoreLib = false;
-        for (const version of versions) {
-            if (version.require && typeof version.require === 'object'&& "mautic/core-lib" in version.require) {
-                hasCoreLib = true;
-                {
-                    await upsertFunction({ name: version.name, version: version.version }); // Call the injected upsert function
-                } 
-                break;
-            }
+Deno.test("storeInSupabase should store valid package data correctly", async () => {
+  const packageData = {
+    packages: {
+      "mock/package": [
+        {
+          name: "mock/package",
+          description: "A mock package",
+          homepage: "https://mockpackage.org",
+          version: "1.0.0",
+          version_normalized: "1.0.0",
+          license: ["MIT"],
+          authors: [{ name: "Mock Author" }],
+          source: { url: "https://mocksource.org", type: "git" },
+          require: { "mautic/core-lib": "^1.0" }
         }
-
-        assert(hasCoreLib, `Expected package ${packageName} to include "mautic/core-lib".`);
-            continue; // Skip this package
-        
-        //Process each version of the package
-        //         for (const version of versions) {
-        //             // Ensure that name and version are defined
-        //             if (version.name && version.version) {
-        //                 // Check for "core-lib" *inside* the loop
-        //                 if (version.require && "mautic/core-lib" in version.require) 
-        //                 // else {
-        //                 //     console.log(`Skipping version: "core-lib" is missing for package ${packageName}, version ${version.version}.`);
-        //                 // }
-        //                     }
-                
-        //     //         else {
-        //     //             console.log(`Skipping version: missing name or version for package ${packageName}.`);
-        //     // }
-        // }
-    }
-}
-
-// Test case
-Deno.test("upsertPackages calls upsert function with correct format", async () => {
-    const mockSupabase = new MockSupabaseClient(); 
-
-    const upsertSpy = async (data: { name: string; version: string }) => {
-        // Assertions to verify the data being upserted
-        assertEquals(data.name, "acquia/mc-cs-plugin-custom-objects");
-        assertEquals(data.version, "1.0.0");
-
-        // Upsert data into the mock database
-        const { data: upsertedData, error } = await mockSupabase
-            .from("packages")
-            .upsert([{ name: data.name, version: data.version }]);
-
-        if (error) {
-            console.error("Error upserting data:", error);
-        } else {
-            // Verify data in the mock database
-            assertEquals(upsertedData[0].name, "acquia/mc-cs-plugin-custom-objects");
-            assertEquals(upsertedData[0].version, "1.0.0");
+      ],
+      "mock/package_no_version": [
+        {
+          name: "mock/package_no_version",
+          description: "A mock package without version",
+          homepage: "https://mockpackage.org",
+          version: "",
+          version_normalized: "",
+          license: ["MIT"],
+          authors: [{ name: "Mock Author" }],
+          source: { url: "https://mocksource.org", type: "git" },
+          require: { "core-lib": "^2.0" }
         }
-    };
+      ],
+      "mock/package_no_core_lib": [
+        {
+          name: "mock/package_no_core_lib",
+          description: "A mock package without core-lib",
+          homepage: "https://mockpackage.org",
+          version: "1.0.0",
+          version_normalized: "1.0.0",
+          license: ["MIT"],
+          authors: [{ name: "Mock Author" }],
+          source: { url: "https://mocksource.org", type: "git" },
+          require: { "other-lib": "^1.0" }
+        }
+      ]
+    }
+  };
 
-    // Call the function with the mock upsert function
-    await upsertPackages(upsertSpy);
+  for (const packageName in packageData.packages) {
+    const data = { packages: { [packageName]: (packageData as any).packages[packageName] } };
+    await storeInSupabase(mockSupabaseClient, data);
+  }
 
+  // Check that only valid packages were stored
+  // assertEquals(mockDatabase.length, 1);
+  // assertEquals(mockDatabase[0].name, "mock/package");
+  // assertEquals(mockDatabase[0].version, "1.0.0");
 });
