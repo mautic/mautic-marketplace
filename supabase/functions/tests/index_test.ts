@@ -3,7 +3,6 @@ import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
 
 // Mock Supabase client
-
 const mockDatabase: any[] = [];
 
 const mockSupabaseClient = {
