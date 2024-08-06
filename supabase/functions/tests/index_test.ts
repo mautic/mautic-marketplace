@@ -1,4 +1,4 @@
-import { storeInSupabase } from '../tests/index_test.ts';
+import { storeInSupabase } from '../fetch_package/index.ts';
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
 
