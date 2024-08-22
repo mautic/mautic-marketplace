@@ -32,7 +32,7 @@ async function storeInSupabase(supabaseClient: any, packageData: any) {
 
   // Insert into packages table first
   const { data: packageDataResponse, error: packageError } = await supabaseClient
-    .from('packagos')
+    .from('packages')
     .upsert([{
       name,
       description,
@@ -78,7 +78,7 @@ async function storeInSupabase(supabaseClient: any, packageData: any) {
     const { description, keywords, homepage, version: ver, version_normalized, license, authors, source, dist, type, support, funding, time, extra } = version;
 
     const { data: versionDataResponse, error: versionError } = await supabaseClient
-      .from('versionos')
+      .from('versions')
       .upsert([{
         package_name: name,
         description,
