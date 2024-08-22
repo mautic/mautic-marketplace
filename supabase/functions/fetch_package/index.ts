@@ -1,7 +1,7 @@
 import { getSupabaseClient } from './supabase_client.ts';
 
 async function fetchPackagistData(packageName: string) {
-  const response = await fetch(`https://repo.packagist.org/p2/${packageName}.json`);
+  const response = await fetch(`https://packagist.org/packages/${packageName}.json`);
   if (!response.ok) {
     throw new Error(`Error fetching data from Packagist: ${response.statusText}`);
   }
@@ -10,53 +10,55 @@ async function fetchPackagistData(packageName: string) {
 }
 
 async function storeInSupabase(supabaseClient: any, packageData: any) {
-  if (!packageData || !packageData.packages) {
+  if (!packageData || !packageData.package) {
     console.error('Invalid package data structure:', packageData);
     throw new Error('Invalid package data structure.');
   }
 
-  const packageName = Object.keys(packageData.packages)[0];
-  const versions = packageData.packages[packageName];
+  const { name, description, time, maintainers, type, repository, github_stars, github_watchers, github_forks, github_open_issues, language, dependents, suggesters, downloads, favers, versions } = packageData.package;
 
-  // Check if 'core-lib' exists in any of the versions
-  let hasCoreLib = false;
-  for (const version of versions) {
-    if (version.require && version.require['mautic/core-lib']) {
-      hasCoreLib = true;
-      break;
-    }
-  }
-
-  // Skip the entire package only if 'core-lib' is not found in any version
-  if (!hasCoreLib) {
-    console.error('Skipping package due to missing core-lib:', packageName);
+  if (!versions) {
+    console.error('No versions found for package:', name);
     return;
   }
 
-  for (const version of versions) {
-    version.name = packageName;
+  // Filter out versions without the required dependency
+  const validVersions = Object.entries(versions).filter(([_, version]) => version.require && version.require['mautic/core-lib']);
 
-    const { name, description, homepage, version: ver, version_normalized, license, authors, source, dist, type, support, funding, time, require } = version;
+  if (validVersions.length === 0) {
+    console.error('No valid versions found with mautic/core-lib dependency for package:', name);
+    return;
+  }
 
-    // if (!ver || !require) {
-    //   console.error('Skipping package due to missing version or require:', name);
-    //   continue;
-    // }
+  // Insert into packages table first
+  const { data: packageDataResponse, error: packageError } = await supabaseClient
+    .from('packagos')
+    .upsert([{
+      name,
+      description,
+      time,
+      maintainers,
+      type,
+      repository,
+      github_stars,
+      github_watchers,
+      github_forks,
+      github_open_issues,
+      language,
+      dependents,
+      suggesters,
+      downloads,
+      favers,
+    }], { onConflict: 'name' });
 
-    let smv = '';
-    if (require && typeof require === 'object') {
-      for (const key in require) {
-        if (key === 'mautic/core-lib') {
-          // Handle cases where 'core-lib' is an object or string
-          if (typeof require[key] === 'string') {
-            smv = require[key];
-          } else if (typeof require[key] === 'object' && require[key]['*']) {
-            smv = require[key]['*'];
-          }
-          break;
-        }
-      }
-    }
+  if (packageError) {
+    console.error('Error inserting package data:', packageError);
+    return;
+  }
+
+  // Now insert into versions table
+  for (const [versionKey, version] of validVersions) {
+    const smv = version.require['mautic/core-lib'];
 
     let storedversions: string[] = [];
     const constraints = smv.split('|');
@@ -73,11 +75,14 @@ async function storeInSupabase(supabaseClient: any, packageData: any) {
       }
     }
 
-    const { data, error } = await supabaseClient
-      .from('packages')
-      .upsert([{ 
-        name,
+    const { description, keywords, homepage, version: ver, version_normalized, license, authors, source, dist, type, support, funding, time, extra } = version;
+
+    const { data: versionDataResponse, error: versionError } = await supabaseClient
+      .from('versionos')
+      .upsert([{
+        package_name: name,
         description,
+        keywords,
         homepage,
         version: ver,
         version_normalized,
@@ -89,15 +94,16 @@ async function storeInSupabase(supabaseClient: any, packageData: any) {
         support,
         funding,
         time,
-        require,
+        extra,
+        require: version.require,
         smv,
         storedversions
-      }], { onConflict: 'name, version' });
+      }], { onConflict: ['package_name', 'version'] });
 
-    if (error) {
-      console.error('Error inserting data:', error);
+    if (versionError) {
+      console.error('Error inserting version data:', versionError);
     } else {
-      console.log('Data inserted successfully:', data);
+      console.log('Version data inserted successfully:', versionDataResponse);
     }
   }
 }
@@ -105,11 +111,11 @@ async function storeInSupabase(supabaseClient: any, packageData: any) {
 async function fetchPackages(url: string, supabaseClient: any) {
   try {
     const packageList = await fetch(url);
-    if (!packageList.ok){
+    if (!packageList.ok) {
       throw new Error(`Error fetching package list: ${packageList.statusText}`);
     }
     const packageNames = await packageList.json();
-    for (const packageName of packageNames.packageNames){
+    for (const packageName of packageNames.packageNames) {
       const packageData = await fetchPackagistData(packageName);
       await storeInSupabase(supabaseClient, packageData);
     }
@@ -134,3 +140,4 @@ if (import.meta.main) {
 }
 
 export { fetchPackagistData, storeInSupabase };
+
