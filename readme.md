@@ -21,33 +21,6 @@ Follow the steps to setup it in your local!
 
 3. Name your project, generate and safely store your password. Select your region select free plan. Create a new project.
 
-4. now go to the sql editor of supabase and paste this query and run!
-
-  ```sql
-  CREATE TABLE packages (
-    id SERIAL PRIMARY KEY,
-    name TEXT,
-    description TEXT,
-    homepage TEXT,
-    version TEXT,
-    version_normalized TEXT,
-    license JSONB,
-    authors JSONB,
-    source JSONB,
-    dist JSONB,
-    type TEXT,
-    support JSONB,
-    funding JSONB,
-    time TIMESTAMPTZ,
-    require JSONB,
-    smv TEXT,
-    storedversions TEXT[],
-    UNIQUE(name, version)
-);
-```
-
-This created a new table with required columns. You should see it in your table editor.
-
 ## Run Locally
 
 Clone the project
@@ -79,6 +52,43 @@ Denoland and JavaScript and TypeScript Nightly by microsoft
 ![image](https://github.com/user-attachments/assets/721c1afc-fda0-49e9-b249-90e199bcfcc3)
 
 REPLACE YOUR URL AND ANON KEY IN INDEX.TS. Find them in your Supabase project at Settings > API)
+
+4. Install the SUPABASE CLI 
+
+for mac os you can run 
+
+```bash
+brew install supabase/tap/supabase
+```
+after installing it 
+
+```bash
+supabase login
+```
+```bash
+supabase init
+```
+than go to the config.toml and change the db port and your project ID that you can find on project settings > DATABASE.
+
+after that you can link your local project to the supabase
+```bash
+supabase link --project-ref refrence id
+```
+deploy your project in supabase cli 
+
+for that you have to open your docker in background 
+```bash
+supabase deploy your_function_name 
+```
+you will see your deployd function on your supabase account>edge function
+
+## Setting Up the Database Schema
+
+```bash
+supabase db push
+```
+
+This will creat the tables and run other functions.
 
 run the project
 
