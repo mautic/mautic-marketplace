@@ -78,7 +78,7 @@ deploy your project in supabase cli
 
 for that you have to open your docker in background 
 ```bash
-supabase deploy your_function_name 
+supabase functions deploy your_function_name
 ```
 you will see your deployd function on your supabase account>edge function
 
