@@ -1,5 +1,3 @@
---This function is for detail of package
-
 CREATE OR REPLACE FUNCTION get_pack(packag_name TEXT)
 RETURNS JSON AS $$
 DECLARE
@@ -34,6 +32,14 @@ BEGIN
                     'smv', v.smv
                 )
             ),
+            'reviews', jsonb_object_agg(
+                COALESCE(r.user, 'no reviews'),
+                jsonb_build_object(
+                    'name', r.user,
+                    'rating', r.rating,
+                    'review', r.review
+                )
+            ),
             'type', p.type,
             'repository', p.repository,
             'github_stars', p.github_stars,
@@ -47,8 +53,9 @@ BEGIN
             'favers', p.favers
         )
     ) INTO package_data
-    FROM packages p
-    JOIN versions v ON p.name = v.package_name
+    FROM packagos p
+    JOIN versionos v ON p.name = v.package_name
+    LEFT JOIN reviews r ON p.name = r."objectId"
     WHERE p.name = packag_name
     GROUP BY p.name, p.description, p.time, p.maintainers, p.type, p.repository, p.github_stars, p.github_watchers, p.github_forks, p.github_open_issues, p.language, p.dependents, p.suggesters, p.downloads, p.favers;
 
@@ -57,3 +64,14 @@ END;
 $$ LANGUAGE plpgsql STABLE;
 
 --drop function get_pack;
+-- 'reviews', CASE
+--             WHEN COUNT(r) = 0 THEN '"no reviews"'::jsonb
+--             ELSE jsonb_object_agg(
+--                 COALESCE(r.user, 'no reviews'),
+--                 jsonb_build_object(
+--                     'name', r.user,
+--                     'rating', r.rating,
+--                     'review', r.review
+--                 )
+--             )
+--             END,

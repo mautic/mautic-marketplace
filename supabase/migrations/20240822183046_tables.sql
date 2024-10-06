@@ -52,3 +52,16 @@ CREATE TABLE versions (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE (package_name, version)
 );
+
+--review table
+
+CREATE TABLE review(
+  id SERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  user TEXT,
+  rating INT,
+  review TEXT,
+  objectId TEXT,
+  picture TEXT,
+  user_id TEXT
+)

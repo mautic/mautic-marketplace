@@ -124,8 +124,18 @@ async function fetchPackages(url: string, supabaseClient: any) {
   }
 }
 
-async function main() {
-  const supabaseClient = getSupabaseClient();
+async function main(req: Request) {
+  const authHeader = req.headers.get('Authorization');
+
+  console.log('Authorization Header:', authHeader);
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+
+  const supabaseClient = getSupabaseClient(token);
   const urls = [
     "https://packagist.org/packages/list.json?type=mautic-plugin",
     "https://packagist.org/packages/list.json?type=mautic-theme",
@@ -133,11 +143,11 @@ async function main() {
   for (const url of urls) {
     await fetchPackages(url, supabaseClient);
   }
+
+  return new Response('Success', { status: 200 });
 }
 
-if (import.meta.main) {
-  main();
-}
+Deno.serve(main);
 
 export { fetchPackagistData, storeInSupabase };
 
