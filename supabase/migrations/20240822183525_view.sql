@@ -13,7 +13,7 @@ DECLARE
 BEGIN
     -- Fetch the total count (without limit/offset)
     SELECT COUNT(*) INTO total FROM packages p
-    WHERE (p.sm = TRUE) AND (_query IS NULL OR p.name ILIKE '%' || _query || '%') AND (_type IS NULL OR p.type ILIKE '%' || _type || '%');
+    WHERE (p.latest_mautic_support = TRUE) AND (_query IS NULL OR p.name ILIKE '%' || _query || '%') AND (_type IS NULL OR p.type ILIKE '%' || _type || '%');
     -- Fetch the data with limit and offset
     SELECT JSON_AGG(t) INTO todo
     FROM (
@@ -32,7 +32,7 @@ BEGIN
             packages p
             LEFT JOIN reviews r ON p.name = r."objectId"
         WHERE 
-            (p.sm = TRUE)
+            (p.latest_mautic_support = TRUE)
             AND
             (_query IS NULL OR p.name ILIKE '%' || _query || '%') AND (_type IS NULL OR p.type ILIKE '%' || _type || '%')
             GROUP BY

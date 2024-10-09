@@ -22,7 +22,7 @@ CREATE TABLE packages (
     url TEXT,
     displayname TEXT,
     isReviewed boolean,
-    letest_mautic_support boolean,
+    latest_mautic_support boolean,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -58,10 +58,10 @@ CREATE TABLE versions (
 CREATE TABLE reviews(
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  user TEXT,
+  "user" TEXT,
   rating INT,
   review TEXT,
-  objectId TEXT NOT NULL REFERENCES packages(name) ON DELETE CASCADE,
+  "objectId" TEXT NOT NULL REFERENCES packages(name) ON DELETE CASCADE,
   picture TEXT,
   user_id TEXT
 )
