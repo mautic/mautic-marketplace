@@ -51,7 +51,7 @@ Denoland and JavaScript and TypeScript Nightly by microsoft
 ![deno extension](https://github.com/user-attachments/assets/3fed8c9b-813d-42db-b488-0f38b905af5c)
 ![image](https://github.com/user-attachments/assets/721c1afc-fda0-49e9-b249-90e199bcfcc3)
 
-REPLACE YOUR URL AND ANON KEY IN INDEX.TS. Find them in your Supabase project at Settings > API)
+Copy the `.env.dist` file and name it just `.env`. Fill in the `SUPABASE_URL` and `SUPABASE_KEY` values. This is required just for local development. In production this will be done in the cron job.
 
 4. Install the SUPABASE CLI 
 
@@ -65,20 +65,25 @@ after installing it
 ```bash
 supabase login
 ```
+If this fails, make sure you have just 1 organization.
 ```bash
 supabase init
 ```
-than go to the config.toml and change the db port and your project ID that you can find on project settings > DATABASE.
+As the command suggests, go to `.vscode/settings.json` and enable deno: `"deno.enable": true`.
+
+than go to the `supabase/config.toml` and change the API `port` from Supabase UI > Project Settings > DATABASE and your `project_id` from Supabase UI > Project Settings that you can find on project .
 
 after that you can link your local project to the supabase
 ```bash
-supabase link --project-ref refrence id
+supabase link --project-ref refrence_id
 ```
-deploy your project in supabase cli 
+Replace the `refrence_id` with the actual reference ID. deploy your project in supabase cli. You can skip the DB password step
+
+Run `supabase projects list` to confirm you can see your project linked.
 
 for that you have to open your docker in background 
 ```bash
-supabase functions deploy your_function_name
+supabase functions deploy fetch_package
 ```
 you will see your deployd function on your supabase account>edge function
 
@@ -87,6 +92,31 @@ you will see your deployd function on your supabase account>edge function
 ```bash
 supabase db push
 ```
+
+Go to Table Editor, click on each table and click on the "RLS disabled" button and enable RLS.
+
+Go to Database > Extensions. Search for "pg_cron" and "pg_net" and enable the extensions
+
+```sql
+-- SELECT cron.unschedule('invoke-function-every-minute');
+select
+  cron.schedule(
+    'invoke-function-every-minute',
+    '* * * * *', -- every minute (Change to 0 0 * * * for production)
+    $$
+    select
+      net.http_post(
+          url:='https://pmlsoukklacrbkqoyqmh.supabase.co/functions/v1/fetch_package',
+          headers:='{"Content-Type": "application/json", "Authorization": "Bearer SERVICE_ROLE_KEY"}'::jsonb,
+          body:=concat('{"time": "', now(), '"}')::jsonb
+      ) as request_id;
+    $$
+  );
+```
+1. Replace the `url` with your edge function URL. Find it in the Supabase UI > Edge Functions.
+2. Replace the `SERVICE_ROLE_KEY` with the key from Project Settings > API
+
+Go to Edge Functions > Select your function > Logs to confirm the cron is running.
 
 This will creat the tables and run other functions.
 
@@ -99,3 +129,15 @@ for testing run
 ```bash
 deno test --allow-env --allow-read supabase/functions/tests/index_test.ts
 ```
+
+## API
+
+Get the Anon key from Project Settings > API.
+
+You can find the Database Functions under Database > Database Functions
+
+### Get packages
+
+`GET https://PROJECT_ID.supabase.co/rest/v1/rpc/get_view?apikey=ANON_KEY&_limit=30&_offset=0&_type=&_query=&_order=asc`
+
+`GET https://PROJECT_ID.supabase.co/rest/v1/rpc/get_pack?apikey=ANON_KEY&packag_name=acquia/mc-cs-plugin-custom-objects`
