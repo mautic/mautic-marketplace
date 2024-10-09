@@ -55,13 +55,13 @@ CREATE TABLE versions (
 
 --review table
 
-CREATE TABLE review(
+CREATE TABLE reviews(
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   user TEXT,
   rating INT,
   review TEXT,
-  objectId TEXT,
+  objectId TEXT NOT NULL REFERENCES packages(name) ON DELETE CASCADE,
   picture TEXT,
   user_id TEXT
 )

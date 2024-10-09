@@ -53,8 +53,8 @@ BEGIN
             'favers', p.favers
         )
     ) INTO package_data
-    FROM packagos p
-    JOIN versionos v ON p.name = v.package_name
+    FROM packages p
+    JOIN versions v ON p.name = v.package_name
     LEFT JOIN reviews r ON p.name = r."objectId"
     WHERE p.name = packag_name
     GROUP BY p.name, p.description, p.time, p.maintainers, p.type, p.repository, p.github_stars, p.github_watchers, p.github_forks, p.github_open_issues, p.language, p.dependents, p.suggesters, p.downloads, p.favers;

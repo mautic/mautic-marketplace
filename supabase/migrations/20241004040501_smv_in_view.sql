@@ -2,11 +2,11 @@ CREATE OR REPLACE FUNCTION update_sm()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Update pdp based on the current state of the version table
-    UPDATE packagos p
+    UPDATE packages p
     SET sm = CASE 
                 WHEN EXISTS (
                     SELECT 1 
-                    FROM versionos v 
+                    FROM versions v 
                     WHERE v.package_name = p.name 
                     AND v.smv LIKE '%^5.0%'
                 ) THEN true
@@ -21,7 +21,7 @@ $$
 
 
  CREATE TRIGGER version_change
-AFTER INSERT OR DELETE OR UPDATE ON versionos
+AFTER INSERT OR DELETE OR UPDATE ON versions
 FOR EACH ROW
 EXECUTE FUNCTION update_sm();
 

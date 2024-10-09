@@ -1,4 +1,5 @@
 import { getSupabaseClient } from './supabase_client.ts';
+import { main as updateAllowlist } from './isReviewed.ts';
 
 async function fetchPackagistData(packageName: string) {
   const response = await fetch(`https://packagist.org/packages/${packageName}.json`);
@@ -75,7 +76,7 @@ async function storeInSupabase(supabaseClient: any, packageData: any) {
       }
     }
 
-    const { description, keywords, homepage, version: ver, version_normalized, license, authors, source, dist, type, support, funding, time, extra } = version;
+    const { description, keywords, homepage, version: ver, version_normalized, license, authors, source, dist, type, support, funding, time, extra } = version as any;
 
     const { data: versionDataResponse, error: versionError } = await supabaseClient
       .from('versions')
@@ -143,6 +144,8 @@ async function main(req: Request) {
   for (const url of urls) {
     await fetchPackages(url, supabaseClient);
   }
+
+  await updateAllowlist();
 
   return new Response('Success', { status: 200 });
 }
