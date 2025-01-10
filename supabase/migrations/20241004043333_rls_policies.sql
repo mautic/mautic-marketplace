@@ -1,5 +1,9 @@
 --Table RLS policies
 
+ALTER TABLE public.versions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.packages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
 ----Packages Table
 
 -- Allow insert only for service_role
