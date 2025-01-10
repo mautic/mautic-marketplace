@@ -1,9 +1,9 @@
-CREATE OR REPLACE FUNCTION update_sm()
+CREATE OR REPLACE FUNCTION update_latest_mautic_support()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Update pdp based on the current state of the version table
     UPDATE packages p
-    SET sm = CASE 
+    SET latest_mautic_support = CASE 
                 WHEN EXISTS (
                     SELECT 1 
                     FROM versions v 
@@ -23,7 +23,7 @@ $$
  CREATE TRIGGER version_change
 AFTER INSERT OR DELETE OR UPDATE ON versions
 FOR EACH ROW
-EXECUTE FUNCTION update_sm();
+EXECUTE FUNCTION update_latest_mautic_support();
 
 --drop trigger version_change on versionos;
--- drop function update_sm;
+-- drop function update_latest_mautic_support;
