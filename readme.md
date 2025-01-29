@@ -45,15 +45,16 @@ with shell
 ```bash
 curl -fsSL https://deno.land/install.sh | sh
 ```
-enable these [VS Code](https://code.visualstudio.com) extensions.
+enable these [VS Code](https://code.visualstudio.com) extensions if the above command doesn't work.
 
-Denoland and JavaScript and TypeScript Nightly by microsoft
-![deno extension](https://github.com/user-attachments/assets/3fed8c9b-813d-42db-b488-0f38b905af5c)
-![image](https://github.com/user-attachments/assets/721c1afc-fda0-49e9-b249-90e199bcfcc3)
+Denoland
+[deno extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
+JavaScript and TypeScript Nightly by microsoft
+[typescript extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-next)
 
-Copy the `.env.dist` file and name it just `.env`. Fill in the `SUPABASE_URL` and `SUPABASE_KEY` values. This is required just for local development. In production this will be done in the cron job.
+Copy the `.env.dist` file and name it just `.env`. Fill in the `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` values. This is required just for local development. In production this will be done in the cron job.
 
-4. Install the SUPABASE CLI 
+4. Install the SUPABASE [CLI] (https://www.bing.com/ck/a?!&&p=969504c469e64707f60850f54acb230cf4b5959a00b4d760742eff0f1cf8352bJmltdHM9MTczODEwODgwMA&ptn=3&ver=2&hsh=4&fclid=17c9cfc5-ca7b-6d48-2c8a-db1ccb7c6caa&psq=supabase+cli+install&u=a1aHR0cHM6Ly9zdXBhYmFzZS5jb20vZG9jcy9ndWlkZXMvbG9jYWwtZGV2ZWxvcG1lbnQvY2xpL2dldHRpbmctc3RhcnRlZA&ntb=1) 
 
 for mac os you can run 
 
@@ -81,7 +82,7 @@ Replace the `refrence_id` with the actual reference ID. deploy your project in s
 
 Run `supabase projects list` to confirm you can see your project linked.
 
-for that you have to open your docker in background 
+Now deploy the supabase function for that you have to open your docker in background 
 ```bash
 supabase functions deploy fetch_package
 ```
@@ -93,9 +94,10 @@ you will see your deployd function on your supabase account>edge function
 supabase db push
 ```
 
-Go to Table Editor, click on each table and click on the "RLS disabled" button and enable RLS.
-
 Go to Database > Extensions. Search for "pg_cron" and "pg_net" and enable the extensions
+
+Open the SQL editor in your remote supabase project, paste below code and run.
+note : (If you doesn't want to enable the cron than you can skip this part of pasting the SQL code. you can directly run it by the deno commands)
 
 ```sql
 -- SELECT cron.unschedule('invoke-function-every-minute');
@@ -138,6 +140,6 @@ You can find the Database Functions under Database > Database Functions
 
 ### Get packages
 
-`GET https://PROJECT_ID.supabase.co/rest/v1/rpc/get_view?apikey=ANON_KEY&_limit=30&_offset=0&_type=&_query=&_order=asc`
+`GET https://PROJECT_ID.supabase.co/rest/v1/rpc/get_view?apikey=ANON_KEY&_limit=30&_offset=0&_orderby=name&_orderdir=asc&_type=&_query=`
 
 `GET https://PROJECT_ID.supabase.co/rest/v1/rpc/get_pack?apikey=ANON_KEY&packag_name=acquia/mc-cs-plugin-custom-objects`
