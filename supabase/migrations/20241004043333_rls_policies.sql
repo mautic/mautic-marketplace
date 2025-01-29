@@ -59,3 +59,8 @@ CREATE POLICY "Users can only update their own data"
 ON reviews
 FOR UPDATE
 USING (user_id = reviews.user_id);
+
+CREATE POLICY "Allow select rating"
+ON reviews
+FOR SELECT
+USING (auth.role() = 'anon');
