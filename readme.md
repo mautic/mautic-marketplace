@@ -54,7 +54,7 @@ JavaScript and TypeScript Nightly by microsoft
 
 Copy the `.env.dist` file and name it just `.env`. Fill in the `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` values. This is required just for local development. In production this will be done in the cron job.
 
-4. Install the SUPABASE [CLI] (https://www.bing.com/ck/a?!&&p=969504c469e64707f60850f54acb230cf4b5959a00b4d760742eff0f1cf8352bJmltdHM9MTczODEwODgwMA&ptn=3&ver=2&hsh=4&fclid=17c9cfc5-ca7b-6d48-2c8a-db1ccb7c6caa&psq=supabase+cli+install&u=a1aHR0cHM6Ly9zdXBhYmFzZS5jb20vZG9jcy9ndWlkZXMvbG9jYWwtZGV2ZWxvcG1lbnQvY2xpL2dldHRpbmctc3RhcnRlZA&ntb=1) 
+4. Install the SUPABASE [CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) 
 
 for mac os you can run 
 
