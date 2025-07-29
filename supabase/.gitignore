@@ -5,3 +5,11 @@
 node_modules
 config.toml
 seed.sql
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
