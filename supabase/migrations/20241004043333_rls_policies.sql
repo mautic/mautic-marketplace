@@ -1,5 +1,3 @@
-ALTER TABLE reviews ALTER COLUMN user_id TYPE uuid USING user_id::uuid;
-
 --Table RLS policies
 
 ALTER TABLE public.versions ENABLE ROW LEVEL SECURITY;
