@@ -1,56 +1,53 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.0.0";
-import "jsr:@std/dotenv/load";
+import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") as string;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") as string;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// The RPC endpoint is the actual working API!!
+const BASE_POSTGREST_URL = `${SUPABASE_URL}/rest/v1/rpc/get_view`;
 
 async function main(req: Request) {
+    // Check if the required envs are set
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error("SUPABASE_URL or SUPABASE_ANON_KEY environment variables are missing.");
+        return new Response(
+            JSON.stringify({ error: 'Server configuration error: Missing environment variables' }), 
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+    
     try {
         const url = new URL(req.url);
         
-        // Extract query parameters for the get_view RPC
-        const _query = url.searchParams.get('query');
-        const _type = url.searchParams.get('type');
-        const _orderby = url.searchParams.get('orderby') || 'name';
-        const _orderdir = url.searchParams.get('orderdir') || 'ASC';
-        const _limit = parseInt(url.searchParams.get('limit') || '20', 10);
-        const _offset = parseInt(url.searchParams.get('offset') || '0', 10);
+        // --- 1. Construct the PostgREST URL with all the query parameters ---
+        const queryString = url.search;
+        const targetUrl = `${BASE_POSTGREST_URL}${queryString}`;
 
-        // Call the PostgreSQL RPC function
-        const { data, error } = await supabase.rpc('get_view', {
-            _query,
-            _type,
-            _orderby,
-            _orderdir: _orderdir.toUpperCase(),
-            _limit,
-            _offset,
+        // --- 2. Make the request to PostgREST using the Anon Key ---
+        const postgrestResponse = await fetch(targetUrl, {
+            method: 'GET',
+            headers: {
+                // IMPORTANT: Authenticate the proxied request..
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json',
+            },
         });
 
-        if (error) {
-            console.error('Error executing get_view:', error);
-            return new Response(JSON.stringify({ 
-                error: 'Database query failed in get_view', 
-                details: error.message 
-            }), {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
-
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
+        // --- 3. Return the EXACT response from PostgREST ---
+        return new Response(postgrestResponse.body, {
+            status: postgrestResponse.status,
+            headers: postgrestResponse.headers,
         });
 
     } catch (error) {
-        console.error('General Error in get_marketplace_view:', error);
-        return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        console.error('Edge Function Proxy Error:', error);
+        return new Response(
+            JSON.stringify({ error: 'Proxy failed to execute the request to the database layer.' }), 
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
     }
 }
 
-Deno.serve(main);
+serve(main);
+
