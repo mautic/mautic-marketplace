@@ -1,3 +1,5 @@
+# This repository is archived as https://github.com/mautic/mautic-public-marketplace replaces it.
+
 # Mautic Marketplace
 
 The Mautic Marketplace is a robust system engineered to enhance the Mautic ecosystem, offering a scalable platform for discovering, rating and reviewing Mautic plugins and themes.
